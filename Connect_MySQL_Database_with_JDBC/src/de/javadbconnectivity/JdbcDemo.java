@@ -15,8 +15,8 @@ import java.sql.Statement;
  * - Verarbeitung von ResultSets
  * - Ordnungsgemäße Ressourcenverwaltung
  * 
- * @author Ihr Name
- * @version 1.0
+ * @author MoBoudni
+ * @version 2.0
  */
 public class JdbcDemo {
     
@@ -95,4 +95,5 @@ public class JdbcDemo {
             e.printStackTrace();
         }
     }
+
 }
