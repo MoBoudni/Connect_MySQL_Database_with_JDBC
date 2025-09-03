@@ -7,106 +7,146 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Demonstriert das Löschen von Datensätzen aus einer MySQL-Datenbank mit JDBC.
+ * 
+ * Diese Klasse zeigt, wie man:
+ * - DELETE-Operationen mit SQL ausführt
+ * - Daten vor und nach dem Löschvorgang anzeigt
+ * - PreparedStatement für sichere Abfragen verwendet
+ * - Hilfsmethoden für Anzeige und Ressourcenverwaltung nutzt
+ * 
+ * @author MoBoudni
+ * @version 2.0
+ */
 public class JdbcDeleteDemo {
-
-public static void main(String[] args) throws SQLException {
-
-	Connection myConn = null;
-	Statement myStmt = null;
-	ResultSet myRs = null;
-	
-	String dbUrl = "jdbc:mysql://localhost:3306/demo";
-	String user = "root";		
-	String pass = "Chakeb1978&";
-
-	try {
-		// Get a connection to database
-		myConn = DriverManager.getConnection(dbUrl, user, pass);
-		
-		// Create a statement
-		myStmt = myConn.createStatement();
-
-		// Call helper method to display the employee's information
-		System.out.println("BEFORE THE DELETE...");
-		displayEmployee(myConn, "John", "Doe");
-		
-		// DELETE the employee
-		System.out.println("\nDELETING THE EMPLOYEE: John Doe\n");
-		
-		int rowsAffected = myStmt.executeUpdate(
-				"delete from employees " +
-				"where last_name='Doe' and first_name='John'");
-		
-		// Call helper method to display the employee's information
-		System.out.println("AFTER THE DELETE...");
-		displayEmployee(myConn, "John", "Doe");
-		
-	}
-	catch (Exception exc) {
-		exc.printStackTrace();
-	}
-	finally {
-		close(myConn, myStmt, myRs);
-	}
-}
-
-private static void displayEmployee(Connection myConn, String firstName, String lastName) throws SQLException {
-	PreparedStatement myStmt = null;
-	ResultSet myRs = null;
-
-	try {
-		// Prepare statement
-		myStmt = myConn
-				.prepareStatement("select last_name, first_name, email from employees where last_name=? and first_name=?");
-
-		myStmt.setString(1, lastName);
-		myStmt.setString(2, firstName);
-		
-		// Execute SQL query
-		myRs = myStmt.executeQuery();
-
-		// Process result set
-		boolean found = false;
-		
-		while (myRs.next()) {
-			String theLastName = myRs.getString("last_name");
-			String theFirstName = myRs.getString("first_name");
-			String email = myRs.getString("email");
-		
-			System.out.printf("Found employee: %s %s, %s\n", theFirstName, theLastName, email);
-			found=true;
-		}
-		
-		if (!found) {
-			System.out.println("Employee NOT FOUND: " + firstName + " " + lastName);				
-		}
-		
-	} catch (Exception exc) {
-		exc.printStackTrace();
-	} finally {
-		close(myStmt, myRs);
-	}
-
-}
-
-private static void close(Connection myConn, Statement myStmt,
-		ResultSet myRs) throws SQLException {
-	if (myRs != null) {
-		myRs.close();
-	}
-
-	if (myStmt != null) {
-		myStmt.close();
-	}
-
-	if (myConn != null) {
-		myConn.close();
-	}
-}
-
-private static void close(Statement myStmt, ResultSet myRs)
-		throws SQLException {
-
-	close(null, myStmt, myRs);
+    
+    /** Datenbank-URL für MySQL-Verbindung */
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/demo";
+    /** Datenbank-Benutzername */
+    private static final String DB_USER = "root";
+    /** Datenbank-Passwort */
+    private static final String DB_PASSWORD = "Chakeb1978&";
+    
+    /**
+     * Hauptmethode, die das Löschen eines Mitarbeiters demonstriert.
+     * Zeigt den Mitarbeiter vor und nach dem Löschvorgang an.
+     * 
+     * @param args Kommandozeilenargumente (werden nicht verwendet)
+     * @throws SQLException wenn ein Datenbankzugriffsfehler auftritt
+     */
+    public static void main(String[] args) throws SQLException {
+        Connection verbindung = null;
+        Statement statement = null;
+        ResultSet ergebnisSet = null;
+        
+        try {
+            // Datenbankverbindung herstellen
+            verbindung = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            
+            // Statement für SQL-Operationen erstellen
+            statement = verbindung.createStatement();
+            
+            // Hilfsmethode aufrufen, um Mitarbeiterinformationen vor dem Löschen anzuzeigen
+            System.out.println("VOR DEM LÖSCHEN...");
+            mitarbeiterAnzeigen(verbindung, "John", "Doe");
+            
+            // Mitarbeiter löschen
+            System.out.println("\nLÖSCHE MITARBEITER: John Doe\n");
+            
+            int betroffeneZeilen = statement.executeUpdate(
+                    "DELETE FROM employees " +
+                    "WHERE last_name='Doe' AND first_name='John'");
+            
+            System.out.println("Anzahl gelöschter Datensätze: " + betroffeneZeilen);
+            
+            // Hilfsmethode aufrufen, um zu prüfen, ob der Mitarbeiter gelöscht wurde
+            System.out.println("\nNACH DEM LÖSCHEN...");
+            mitarbeiterAnzeigen(verbindung, "John", "Doe");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            ressourcenSchliessen(verbindung, statement, ergebnisSet);
+        }
     }
-}	
+    
+    /**
+     * Zeigt Informationen eines bestimmten Mitarbeiters an oder meldet, wenn er nicht gefunden wurde.
+     * 
+     * @param verbindung die Datenbankverbindung
+     * @param vorname der Vorname des zu suchenden Mitarbeiters
+     * @param nachname der Nachname des zu suchenden Mitarbeiters
+     * @throws SQLException wenn ein Datenbankzugriffsfehler auftritt
+     */
+    private static void mitarbeiterAnzeigen(Connection verbindung, String vorname, String nachname) 
+            throws SQLException {
+        PreparedStatement statement = null;
+        ResultSet ergebnisSet = null;
+        
+        try {
+            // Parametrisierte Abfrage vorbereiten
+            statement = verbindung.prepareStatement(
+                "SELECT last_name, first_name, email FROM employees WHERE last_name=? AND first_name=?");
+            statement.setString(1, nachname);
+            statement.setString(2, vorname);
+            
+            // SQL-Abfrage ausführen
+            ergebnisSet = statement.executeQuery();
+            
+            // Ergebnisse verarbeiten
+            boolean gefunden = false;
+            
+            while (ergebnisSet.next()) {
+                String derNachname = ergebnisSet.getString("last_name");
+                String derVorname = ergebnisSet.getString("first_name");
+                String email = ergebnisSet.getString("email");
+                
+                System.out.printf("Mitarbeiter gefunden: %s %s, %s%n", derVorname, derNachname, email);
+                gefunden = true;
+            }
+            
+            if (!gefunden) {
+                System.out.println("Mitarbeiter NICHT GEFUNDEN: " + vorname + " " + nachname);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            ressourcenSchliessen(statement, ergebnisSet);
+        }
+    }
+    
+    /**
+     * Schließt alle Datenbankressourcen sicher, um Resource-Leaks zu verhindern.
+     * 
+     * @param verbindung die zu schließende Datenbankverbindung
+     * @param statement das zu schließende Statement
+     * @param ergebnisSet das zu schließende ResultSet
+     * @throws SQLException wenn ein Datenbankzugriffsfehler beim Schließen auftritt
+     */
+    private static void ressourcenSchliessen(Connection verbindung, Statement statement,
+                                           ResultSet ergebnisSet) throws SQLException {
+        if (ergebnisSet != null) {
+            ergebnisSet.close();
+        }
+        if (statement != null) {
+            statement.close();
+        }
+        if (verbindung != null) {
+            verbindung.close();
+        }
+    }
+    
+    /**
+     * Überladene Methode zum Schließen von Statement und ResultSet.
+     * 
+     * @param statement das zu schließende Statement
+     * @param ergebnisSet das zu schließende ResultSet
+     * @throws SQLException wenn ein Datenbankzugriffsfehler beim Schließen auftritt
+     */
+    private static void ressourcenSchliessen(Statement statement, ResultSet ergebnisSet)
+            throws SQLException {
+        ressourcenSchliessen(null, statement, ergebnisSet);
+    }
+}
