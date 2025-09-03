@@ -14,8 +14,8 @@ import java.sql.Statement;
  * - Einfache Demonstration von JDBC-Grundlagen
  * - Template für weitere JDBC-Anwendungen
  * 
- * @author Ihr Name
- * @version 1.0
+ * @author MoBoudni
+ * @version 2.0
  */
 public class JdbcTest {
     
@@ -94,4 +94,5 @@ public class JdbcTest {
             e.printStackTrace();
         }
     }
+
 }
