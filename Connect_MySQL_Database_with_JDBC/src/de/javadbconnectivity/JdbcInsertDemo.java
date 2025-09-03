@@ -15,8 +15,8 @@ import java.sql.Statement;
  * - Nach dem Einfügen die aktualisierten Daten anzeigt
  * - Ordnungsgemäße Fehlerbehandlung und Ressourcenverwaltung implementiert
  * 
- * @author Ihr Name
- * @version 1.0
+ * @author MoBoudni
+ * @version 2.0
  */
 public class JdbcInsertDemo {
     
@@ -106,4 +106,5 @@ public class JdbcInsertDemo {
             e.printStackTrace();
         }
     }
+
 }
