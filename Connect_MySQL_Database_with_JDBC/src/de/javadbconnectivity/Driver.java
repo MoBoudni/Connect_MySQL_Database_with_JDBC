@@ -16,8 +16,8 @@ import java.sql.SQLException;
  * - Prepared Statements mit verschiedenen Parametern wiederverwendet
  * - Ressourcen ordnungsgemäß mit try-finally-Blöcken verwaltet
  * 
- * @author Ihr Name
- * @version 1.0
+ * @author MoBoudni
+ * @version 2.0
  */
 public class Driver {
     
@@ -112,4 +112,5 @@ public class Driver {
             e.printStackTrace();
         }
     }
+
 }
