@@ -59,7 +59,7 @@ public class JdbcUpdateDemo {
             
             int betroffeneZeilen = statement.executeUpdate(
                 "UPDATE employees " +
-                "SET email='john.doe@luv2code.com' " +
+                "SET email='john.doe@gmx.com' " +
                 "WHERE last_name='Doe' AND first_name='John'");
             
             System.out.println("Anzahl aktualisierter Datensätze: " + betroffeneZeilen);
@@ -165,4 +165,5 @@ public class JdbcUpdateDemo {
         // Delegiert an die Hauptmethode mit null als Connection
         close(null, statement, ergebnisSet);
     }
+
 }
